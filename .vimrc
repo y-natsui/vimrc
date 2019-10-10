@@ -1,149 +1,228 @@
-"
-" Vim8用サンプル vimrc
-"
-if has('win32')                   " Windows 32bit または 64bit ?
-  set encoding=cp932              " cp932 が嫌なら utf-8 にしてください
-else
-  set encoding=utf-8
-endif
-scriptencoding utf-8              " This file's encoding
-
-" 推奨設定の読み込み (:h defaults.vim)
-unlet! skip_defaults_vim
-source $VIMRUNTIME/defaults.vim
-
-"===============================================================================
-" 設定の追加はこの行以降でおこなうこと！
-" 分からないオプション名は先頭に ' を付けてhelpしましょう。例:
-" :h 'helplang
-
-" packadd! vimdoc-ja                " 日本語help の読み込み
-" set helplang=ja,en                " help言語の設定
-
-set scrolloff=0
-set laststatus=2                  " 常にステータス行を表示する
-set number                        " 行番号を表示
-set cursorline                    " 行番号のハイライト
-set cmdheight=2                   " hit-enter回数を減らすのが目的
-if !has('gui_running')            " gvimではない？ (== 端末)
-  set mouse=                      " マウス無効 (macOS時は不便かも？)
-  set ttimeoutlen=0               " モード変更時の表示更新を最速化
-  if $COLORTERM == "truecolor"    " True Color対応端末？
-    set termguicolors
-  endif
-endif
-set nofixendofline                " Windowsのエディタの人達に嫌われない設定
-set ambiwidth=double              " ○, △, □等の文字幅をASCII文字の倍にする
-set directory-=.                  " swapファイルはローカル作成がトラブル少なめ
-set formatoptions+=mM             " 日本語の途中でも折り返す
-let &grepprg="grep -rnIH --exclude=.git --exclude-dir=.hg --exclude-dir=.svn --exclude=tags"
-let loaded_matchparen = 1         " カーソルが括弧上にあっても括弧ペアをハイライトさせない
-" Don't show YCM's preview window
-set completeopt-=preview
-let g:ycm_add_preview_to_completeopt = 0
-
-" :grep 等でquickfixウィンドウを開く (:lgrep 等でlocationlistウィンドウを開く)
-"augroup qf_win
-"  autocmd!
-"  autocmd QuickfixCmdPost [^l]* copen
-"  autocmd QuickfixCmdPost l* lopen
-"augroup END
-
-" マウスの中央ボタンクリックによるクリップボードペースト動作を抑制する
-noremap <MiddleMouse> <Nop>
-noremap! <MiddleMouse> <Nop>
-noremap <2-MiddleMouse> <Nop>
-noremap! <2-MiddleMouse> <Nop>
-noremap <3-MiddleMouse> <Nop>
-noremap! <3-MiddleMouse> <Nop>
-noremap <4-MiddleMouse> <Nop>
-noremap! <4-MiddleMouse> <Nop>
-
-"-------------------------------------------------------------------------------
-"
-let &statusline = "%<%f %m%r%h%w[%{&ff}][%{(&fenc!=''?&fenc:&enc).(&bomb?':bom':'')}] "
-if has('iconv')
-  let &statusline .= "0x%{FencB()}"
-
-  function! FencB()
-    let c = matchstr(getline('.'), '.', col('.') - 1)
-    if c != ''
-      let c = iconv(c, &enc, &fenc)
-      return s:Byte2hex(s:Str2byte(c))
-    else
-      return '0'
-    endif
-  endfunction
-  function! s:Str2byte(str)
-    return map(range(len(a:str)), 'char2nr(a:str[v:val])')
-  endfunction
-  function! s:Byte2hex(bytes)
-    return join(map(copy(a:bytes), 'printf("%02X", v:val)'), '')
-  endfunction
-else
-  let &statusline .= "0x%B"
-endif
-let &statusline .= "%=%l,%c%V %P"
-
-"-------------------------------------------------------------------------------
-" ファイルエンコーディング検出設定
-"let &fileencoding = &encoding
-"if has('iconv')
-"  if &encoding ==# 'utf-8'
-"    let &fileencodings = 'iso-2022-jp,euc-jp,cp932,' . &fileencodings
-"  else
-"    let &fileencodings .= ',iso-2022-jp,utf-8,ucs-2le,ucs-2,euc-jp'
-"  endif
-"endif
-"" 日本語を含まないファイルのエンコーディングは encoding と同じにする
-"if has('autocmd')
-"  function! AU_ReSetting_Fenc()
-"    if &fileencoding =~# 'iso-2022-jp' && search("[^\x01-\x7e]", 'n') == 0
-"      let &fileencoding = &encoding
-"    endif
-"  endfunction
-"  augroup resetting_fenc
-"    autocmd!
-"    autocmd BufReadPost * call AU_ReSetting_Fenc()
-"  augroup END
-"endif
-
-set fileencodings=utf-8,cp932,euc-jp,sjis
-set encoding=utf-8
-set fileformat=unix
-
-"-------------------------------------------------------------------------------
-" カラースキームの設定
-autocmd ColorScheme * highlight LineNr ctermfg=245
-colorscheme hybrid
-
-"try
-"  silent hi CursorIM
-"catch /E411/
-  " CursorIM (IME ON中のカーソル色)が定義されていなければ、紫に設定
-"  hi CursorIM ctermfg=16 ctermbg=127 guifg=#000000 guibg=#af00af
-"endtry
-
-" vim:set et ts=2 sw=0:
-
-" vim-plugの設定開始(beginの引数はvimプラグインが格納されるディレクトリ)
+""""""""""""""""""""""""""""""
+" プラグインのセットアップ
+""""""""""""""""""""""""""""""
 call plug#begin('~/.vim/plugged')
 
+" ファイルオープンを便利に
+Plug 'Shougo/unite.vim'
+" Unite.vimで最近使ったファイルを表示できるようにする
+Plug 'Shougo/neomru.vim'
+" ファイルをtree表示してくれる
 Plug 'scrooloose/nerdtree'
-Plug 'bronson/vim-trailing-whitespace'
-Plug 'cohama/lexima.vim'
-Plug 'itchyny/lightline.vim'
-" brew install fzf
-Plug '/usr/local/opt/fzf'
-Plug 'junegunn/fzf.vim'
-Plug 'valloric/youcompleteme'
-Plug 'pangloss/vim-javascript'
-Plug 'w0rp/ale'
+" Gitを便利に使う
 Plug 'tpope/vim-fugitive'
-Plug 'lvht/phpcd.vim'
 
-" 他にもインストールしたいプラグインがあれば、同じ様に記述する
+" Rails向けのコマンドを提供する
+" Plug 'tpope/vim-rails'
+" Ruby向けにendを自動挿入してくれる
+Plug 'tpope/vim-endwise'
+
+" コメントON/OFFを手軽に実行
+Plug 'tomtom/tcomment_vim'
+" シングルクオートとダブルクオートの入れ替え等
+Plug 'tpope/vim-surround'
+
+" インデントに色を付けて見やすくする
+Plug 'nathanaelkane/vim-indent-guides'
+let g:indent_guides_enable_on_vim_startup = 1
+" ログファイルを色づけしてくれる
+Plug 'vim-scripts/AnsiEsc.vim'
+" 行末の半角スペースを可視化
+Plug 'bronson/vim-trailing-whitespace'
+" less用のsyntaxハイライト
+" Plug 'KohPoll/vim-less'
+
+" RubyMineのように自動保存する
+Plug '907th/vim-auto-save'
+let g:auto_save = 1
+
+" CSVをカラム単位に色分けする
+Plug 'mechatroner/rainbow_csv'
+
+" 余談: neocompleteは合わなかった。ctrl+pで補完するのが便利
+
 call plug#end()
 
-map <C-o> :NERDTreeToggle<CR>
-map ; :Files<CR>
+" filetypeの検出を有効化する => vim-plugでは不要
+" filetype plugin indent on
+""""""""""""""""""""""""""""""
+
+""""""""""""""""""""""""""""""
+" 各種オプションの設定
+""""""""""""""""""""""""""""""
+" タグファイルの指定(でもタグジャンプは使ったことがない)
+set tags=~/.tags
+" スワップファイルは使わない(ときどき面倒な警告が出るだけで役に立ったことがない)
+set noswapfile
+" undoファイルは作成しない
+set noundofile
+" カーソルが何行目の何列目に置かれているかを表示する
+set ruler
+" コマンドラインに使われる画面上の行数
+set cmdheight=2
+" エディタウィンドウの末尾から2行目にステータスラインを常時表示させる
+set laststatus=2
+" ステータス行に表示させる情報の指定(どこからかコピペしたので細かい意味はわかっていない)
+set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
+" ステータス行に現在のgitブランチを表示する
+set statusline+=%{fugitive#statusline()}
+" ウインドウのタイトルバーにファイルのパス情報等を表示する
+set title
+" コマンドラインモードで<Tab>キーによるファイル名補完を有効にする
+set wildmenu
+" 入力中のコマンドを表示する
+set showcmd
+" バックアップディレクトリの指定(でもバックアップは使ってない)
+set backupdir=$HOME/.vimbackup
+" バッファで開いているファイルのディレクトリでエクスクローラを開始する(でもエクスプローラって使ってない)
+set browsedir=buffer
+" 小文字のみで検索したときに大文字小文字を無視する
+set smartcase
+" 検索結果をハイライト表示する
+set hlsearch
+" 暗い背景色に合わせた配色にする
+set background=dark
+" タブ入力を複数の空白入力に置き換える
+set expandtab
+" 検索ワードの最初の文字を入力した時点で検索を開始する
+set incsearch
+" 保存されていないファイルがあるときでも別のファイルを開けるようにする
+set hidden
+" 不可視文字を表示する
+set list
+" タブと行の続きを可視化する
+set listchars=tab:>\ ,extends:<
+" 行番号を表示する
+set number
+" 対応する括弧やブレースを表示する
+set showmatch
+" 改行時に前の行のインデントを継続する
+set autoindent
+" 改行時に入力された行の末尾に合わせて次の行のインデントを増減する
+set smartindent
+" タブ文字の表示幅
+set tabstop=2
+" Vimが挿入するインデントの幅
+set shiftwidth=2
+" 行頭の余白内で Tab を打ち込むと、'shiftwidth' の数だけインデントする
+set smarttab
+" カーソルを行頭、行末で止まらないようにする
+set whichwrap=b,s,h,l,<,>,[,]
+" 構文毎に文字色を変化させる
+syntax on
+" カラースキーマの指定
+colorscheme desert
+" 行番号の色
+highlight LineNr ctermfg=darkyellow
+" 勝手に改行するのを防ぐ
+" set textwidth=0
+set formatoptions=q
+" textwidthでフォーマットさせたくない
+set formatoptions=q
+" クラッシュ防止（http://superuser.com/questions/810622/vim-crashes-freezes-on-specific-files-mac-osx-mavericks）
+set synmaxcol=200
+""""""""""""""""""""""""""""""
+
+" grep検索の実行後にQuickFix Listを表示する
+autocmd QuickFixCmdPost *grep* cwindow
+
+" http://blog.remora.cx/2010/12/vim-ref-with-unite.html
+""""""""""""""""""""""""""""""
+" Unite.vimの設定
+""""""""""""""""""""""""""""""
+" 入力モードで開始する
+let g:unite_enable_start_insert=1
+" バッファ一覧
+noremap <C-P> :Unite buffer<CR>
+" ファイル一覧
+noremap <C-N> :Unite -buffer-name=file file<CR>
+" 最近使ったファイルの一覧
+noremap <C-Z> :Unite file_mru<CR>
+" sourcesを「今開いているファイルのディレクトリ」とする
+noremap :uff :<C-u>UniteWithBufferDir file -buffer-name=file<CR>
+" ウィンドウを分割して開く
+au FileType unite nnoremap <silent> <buffer> <expr> <C-J> unite#do_action('split')
+au FileType unite inoremap <silent> <buffer> <expr> <C-J> unite#do_action('split')
+" ウィンドウを縦に分割して開く
+au FileType unite nnoremap <silent> <buffer> <expr> <C-K> unite#do_action('vsplit')
+au FileType unite inoremap <silent> <buffer> <expr> <C-K> unite#do_action('vsplit')
+" ESCキーを2回押すと終了する
+au FileType unite nnoremap <silent> <buffer> <ESC><ESC> :q<CR>
+au FileType unite inoremap <silent> <buffer> <ESC><ESC> <ESC>:q<CR>
+""""""""""""""""""""""""""""""
+
+" http://inari.hatenablog.com/entry/2014/05/05/231307
+""""""""""""""""""""""""""""""
+" 全角スペースの表示
+""""""""""""""""""""""""""""""
+function! ZenkakuSpace()
+    highlight ZenkakuSpace cterm=underline ctermfg=lightblue guibg=darkgray
+endfunction
+
+if has('syntax')
+    augroup ZenkakuSpace
+        autocmd!
+        autocmd ColorScheme * call ZenkakuSpace()
+        autocmd VimEnter,WinEnter,BufRead * let w:m1=matchadd('ZenkakuSpace', '　')
+    augroup END
+    call ZenkakuSpace()
+endif
+""""""""""""""""""""""""""""""
+
+" https://sites.google.com/site/fudist/Home/vim-nihongo-ban/-vimrc-sample
+""""""""""""""""""""""""""""""
+" 挿入モード時、ステータスラインの色を変更
+""""""""""""""""""""""""""""""
+let g:hi_insert = 'highlight StatusLine guifg=darkblue guibg=darkyellow gui=none ctermfg=blue ctermbg=yellow cterm=none'
+
+if has('syntax')
+  augroup InsertHook
+    autocmd!
+    autocmd InsertEnter * call s:StatusLine('Enter')
+    autocmd InsertLeave * call s:StatusLine('Leave')
+  augroup END
+endif
+
+let s:slhlcmd = ''
+function! s:StatusLine(mode)
+  if a:mode == 'Enter'
+    silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
+    silent exec g:hi_insert
+  else
+    highlight clear StatusLine
+    silent exec s:slhlcmd
+  endif
+endfunction
+
+function! s:GetHighlight(hi)
+  redir => hl
+  exec 'highlight '.a:hi
+  redir END
+  let hl = substitute(hl, '[\r\n]', '', 'g')
+  let hl = substitute(hl, 'xxx', '', '')
+  return hl
+endfunction
+""""""""""""""""""""""""""""""
+
+""""""""""""""""""""""""""""""
+" 最後のカーソル位置を復元する
+""""""""""""""""""""""""""""""
+if has("autocmd")
+    autocmd BufReadPost *
+    \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+    \   exe "normal! g'\"" |
+    \ endif
+endif
+""""""""""""""""""""""""""""""
+
+""""""""""""""""""""""""""""""
+" 自動的に閉じ括弧を入力
+""""""""""""""""""""""""""""""
+imap { {}<LEFT>
+imap [ []<LEFT>
+imap ( ()<LEFT>
+""""""""""""""""""""""""""""""
+
+" filetypeの自動検出(最後の方に書いた方がいいらしい)
+filetype on
+
