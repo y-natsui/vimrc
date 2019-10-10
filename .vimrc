@@ -43,8 +43,6 @@ Plug 'mechatroner/rainbow_csv'
 
 call plug#end()
 
-" filetypeの検出を有効化する => vim-plugでは不要
-" filetype plugin indent on
 """"""""""""""""""""""""""""""
 
 """"""""""""""""""""""""""""""
@@ -59,21 +57,47 @@ set noundofile
 " カーソルが何行目の何列目に置かれているかを表示する
 set ruler
 " コマンドラインに使われる画面上の行数
-set cmdheight=2
+set cmdheight=1
 " エディタウィンドウの末尾から2行目にステータスラインを常時表示させる
 set laststatus=2
 " ステータス行に表示させる情報の指定(どこからかコピペしたので細かい意味はわかっていない)
-set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
+"set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
 " ステータス行に現在のgitブランチを表示する
-set statusline+=%{fugitive#statusline()}
+"set statusline+=%{fugitive#statusline()}
+let &statusline = "%<%f %m%r%h%w[%{&ff}][%{(&fenc!=''?&fenc:&enc).(&bomb?':bom':'')}] "
+if has('iconv')
+  let &statusline .= "0x%{FencB()}"
+
+  function! FencB()
+    let c = matchstr(getline('.'), '.', col('.') - 1)
+    if c != ''
+      let c = iconv(c, &enc, &fenc)
+      return s:Byte2hex(s:Str2byte(c))
+    else
+      return '0'
+    endif
+  endfunction
+  function! s:Str2byte(str)
+    return map(range(len(a:str)), 'char2nr(a:str[v:val])')
+  endfunction
+  function! s:Byte2hex(bytes)
+    return join(map(copy(a:bytes), 'printf("%02X", v:val)'), '')
+  endfunction
+else
+  let &statusline .= "0x%B"
+endif
+let &statusline .= "%=%l,%c%V %P"
+
+set fileencodings=utf-8,cp932,euc-jp,sjis
+set encoding=utf-8
+set fileformat=unix
+
 " ウインドウのタイトルバーにファイルのパス情報等を表示する
 set title
 " コマンドラインモードで<Tab>キーによるファイル名補完を有効にする
 set wildmenu
 " 入力中のコマンドを表示する
 set showcmd
-" バックアップディレクトリの指定(でもバックアップは使ってない)
-set backupdir=$HOME/.vimbackup
 " バッファで開いているファイルのディレクトリでエクスクローラを開始する(でもエクスプローラって使ってない)
 set browsedir=buffer
 " 小文字のみで検索したときに大文字小文字を無視する
