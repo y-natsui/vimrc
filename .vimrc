@@ -11,6 +11,7 @@ Plug 'Shougo/neomru.vim'
 Plug 'scrooloose/nerdtree'
 " Gitを便利に使う
 Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
 
 " Rails向けのコマンドを提供する
 " Plug 'tpope/vim-rails'
@@ -21,25 +22,15 @@ Plug 'tpope/vim-endwise'
 Plug 'tomtom/tcomment_vim'
 " シングルクオートとダブルクオートの入れ替え等
 Plug 'tpope/vim-surround'
-
-" インデントに色を付けて見やすくする
-Plug 'nathanaelkane/vim-indent-guides'
-let g:indent_guides_enable_on_vim_startup = 1
 " ログファイルを色づけしてくれる
 Plug 'vim-scripts/AnsiEsc.vim'
 " 行末の半角スペースを可視化
 Plug 'bronson/vim-trailing-whitespace'
-" less用のsyntaxハイライト
-" Plug 'KohPoll/vim-less'
-
-" RubyMineのように自動保存する
-Plug '907th/vim-auto-save'
-let g:auto_save = 1
-
 " CSVをカラム単位に色分けする
 Plug 'mechatroner/rainbow_csv'
-
-" 余談: neocompleteは合わなかった。ctrl+pで補完するのが便利
+" color scheme
+Plug 'lifepillar/vim-solarized8'
+" ctrl+pで補完するのが便利
 
 call plug#end()
 
@@ -60,37 +51,39 @@ set ruler
 set cmdheight=1
 " エディタウィンドウの末尾から2行目にステータスラインを常時表示させる
 set laststatus=2
-" ステータス行に表示させる情報の指定(どこからかコピペしたので細かい意味はわかっていない)
-"set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
+" 行を強調表示
+set cursorline
+" ステータス行に表示させる情報の指定
+set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
 " ステータス行に現在のgitブランチを表示する
-"set statusline+=%{fugitive#statusline()}
-let &statusline = "%<%f %m%r%h%w[%{&ff}][%{(&fenc!=''?&fenc:&enc).(&bomb?':bom':'')}] "
-if has('iconv')
-  let &statusline .= "0x%{FencB()}"
-
-  function! FencB()
-    let c = matchstr(getline('.'), '.', col('.') - 1)
-    if c != ''
-      let c = iconv(c, &enc, &fenc)
-      return s:Byte2hex(s:Str2byte(c))
-    else
-      return '0'
-    endif
-  endfunction
-  function! s:Str2byte(str)
-    return map(range(len(a:str)), 'char2nr(a:str[v:val])')
-  endfunction
-  function! s:Byte2hex(bytes)
-    return join(map(copy(a:bytes), 'printf("%02X", v:val)'), '')
-  endfunction
-else
-  let &statusline .= "0x%B"
-endif
-let &statusline .= "%=%l,%c%V %P"
-
-set fileencodings=utf-8,cp932,euc-jp,sjis
-set encoding=utf-8
-set fileformat=unix
+set statusline+=%{fugitive#statusline()}
+"let &statusline = "%<%f %m%r%h%w[%{&ff}][%{(&fenc!=''?&fenc:&enc).(&bomb?':bom':'')}] "
+"if has('iconv')
+"  let &statusline .= "0x%{FencB()}"
+"
+"  function! FencB()
+"    let c = matchstr(getline('.'), '.', col('.') - 1)
+"    if c != ''
+"      let c = iconv(c, &enc, &fenc)
+"      return s:Byte2hex(s:Str2byte(c))
+"    else
+"      return '0'
+"    endif
+"  endfunction
+"  function! s:Str2byte(str)
+"    return map(range(len(a:str)), 'char2nr(a:str[v:val])')
+"  endfunction
+"  function! s:Byte2hex(bytes)
+"    return join(map(copy(a:bytes), 'printf("%02X", v:val)'), '')
+"  endfunction
+"else
+"  let &statusline .= "0x%B"
+"endif
+"let &statusline .= "%=%l,%c%V %P"
+"
+"set fileencodings=utf-8,cp932,euc-jp,sjis
+"set encoding=utf-8
+"set fileformat=unix
 
 " ウインドウのタイトルバーにファイルのパス情報等を表示する
 set title
@@ -135,16 +128,14 @@ set whichwrap=b,s,h,l,<,>,[,]
 " 構文毎に文字色を変化させる
 syntax on
 " カラースキーマの指定
-colorscheme desert
-" 行番号の色
-highlight LineNr ctermfg=darkyellow
+colorscheme solarized8_flat
 " 勝手に改行するのを防ぐ
 " set textwidth=0
 set formatoptions=q
 " textwidthでフォーマットさせたくない
 set formatoptions=q
 " クラッシュ防止（http://superuser.com/questions/810622/vim-crashes-freezes-on-specific-files-mac-osx-mavericks）
-set synmaxcol=200
+"set synmaxcol=200
 """"""""""""""""""""""""""""""
 
 " grep検索の実行後にQuickFix Listを表示する
@@ -175,7 +166,6 @@ au FileType unite nnoremap <silent> <buffer> <ESC><ESC> :q<CR>
 au FileType unite inoremap <silent> <buffer> <ESC><ESC> <ESC>:q<CR>
 """"""""""""""""""""""""""""""
 
-" http://inari.hatenablog.com/entry/2014/05/05/231307
 """"""""""""""""""""""""""""""
 " 全角スペースの表示
 """"""""""""""""""""""""""""""
@@ -191,41 +181,6 @@ if has('syntax')
     augroup END
     call ZenkakuSpace()
 endif
-""""""""""""""""""""""""""""""
-
-" https://sites.google.com/site/fudist/Home/vim-nihongo-ban/-vimrc-sample
-""""""""""""""""""""""""""""""
-" 挿入モード時、ステータスラインの色を変更
-""""""""""""""""""""""""""""""
-let g:hi_insert = 'highlight StatusLine guifg=darkblue guibg=darkyellow gui=none ctermfg=blue ctermbg=yellow cterm=none'
-
-if has('syntax')
-  augroup InsertHook
-    autocmd!
-    autocmd InsertEnter * call s:StatusLine('Enter')
-    autocmd InsertLeave * call s:StatusLine('Leave')
-  augroup END
-endif
-
-let s:slhlcmd = ''
-function! s:StatusLine(mode)
-  if a:mode == 'Enter'
-    silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
-    silent exec g:hi_insert
-  else
-    highlight clear StatusLine
-    silent exec s:slhlcmd
-  endif
-endfunction
-
-function! s:GetHighlight(hi)
-  redir => hl
-  exec 'highlight '.a:hi
-  redir END
-  let hl = substitute(hl, '[\r\n]', '', 'g')
-  let hl = substitute(hl, 'xxx', '', '')
-  return hl
-endfunction
 """"""""""""""""""""""""""""""
 
 """"""""""""""""""""""""""""""
