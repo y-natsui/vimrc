@@ -30,6 +30,9 @@ Plug 'bronson/vim-trailing-whitespace'
 Plug 'mechatroner/rainbow_csv'
 " color scheme
 Plug 'lifepillar/vim-solarized8'
+" statusline
+Plug 'itchyny/lightline.vim'
+
 " ctrl+pで補完するのが便利
 
 call plug#end()
@@ -45,46 +48,14 @@ set tags=~/.tags
 set noswapfile
 " undoファイルは作成しない
 set noundofile
-" カーソルが何行目の何列目に置かれているかを表示する
-set ruler
 " コマンドラインに使われる画面上の行数
 set cmdheight=1
 " エディタウィンドウの末尾から2行目にステータスラインを常時表示させる
 set laststatus=2
 " 行を強調表示
 set cursorline
-" ステータス行に表示させる情報の指定
-set statusline=%<%f\ %m%r%h%w%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}%=%l,%c%V%8P
-" ステータス行に現在のgitブランチを表示する
-set statusline+=%{fugitive#statusline()}
-"let &statusline = "%<%f %m%r%h%w[%{&ff}][%{(&fenc!=''?&fenc:&enc).(&bomb?':bom':'')}] "
-"if has('iconv')
-"  let &statusline .= "0x%{FencB()}"
-"
-"  function! FencB()
-"    let c = matchstr(getline('.'), '.', col('.') - 1)
-"    if c != ''
-"      let c = iconv(c, &enc, &fenc)
-"      return s:Byte2hex(s:Str2byte(c))
-"    else
-"      return '0'
-"    endif
-"  endfunction
-"  function! s:Str2byte(str)
-"    return map(range(len(a:str)), 'char2nr(a:str[v:val])')
-"  endfunction
-"  function! s:Byte2hex(bytes)
-"    return join(map(copy(a:bytes), 'printf("%02X", v:val)'), '')
-"  endfunction
-"else
-"  let &statusline .= "0x%B"
-"endif
-"let &statusline .= "%=%l,%c%V %P"
-"
-"set fileencodings=utf-8,cp932,euc-jp,sjis
-"set encoding=utf-8
-"set fileformat=unix
-
+" -- INSERT -- is unnecessary
+set noshowmode
 " ウインドウのタイトルバーにファイルのパス情報等を表示する
 set title
 " コマンドラインモードで<Tab>キーによるファイル名補完を有効にする
@@ -166,22 +137,20 @@ au FileType unite nnoremap <silent> <buffer> <ESC><ESC> :q<CR>
 au FileType unite inoremap <silent> <buffer> <ESC><ESC> <ESC>:q<CR>
 """"""""""""""""""""""""""""""
 
-""""""""""""""""""""""""""""""
-" 全角スペースの表示
-""""""""""""""""""""""""""""""
-function! ZenkakuSpace()
-    highlight ZenkakuSpace cterm=underline ctermfg=lightblue guibg=darkgray
-endfunction
+" NERDTree
+nnoremap <silent><C-e> :NERDTreeToggle<CR>
 
-if has('syntax')
-    augroup ZenkakuSpace
-        autocmd!
-        autocmd ColorScheme * call ZenkakuSpace()
-        autocmd VimEnter,WinEnter,BufRead * let w:m1=matchadd('ZenkakuSpace', '　')
-    augroup END
-    call ZenkakuSpace()
-endif
-""""""""""""""""""""""""""""""
+" lightline
+let g:lightline = {
+      \ 'colorscheme': 'solarized',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
+      \ },
+      \ 'component_function': {
+      \   'gitbranch': 'fugitive#head'
+      \ },
+      \ }
 
 """"""""""""""""""""""""""""""
 " 最後のカーソル位置を復元する
