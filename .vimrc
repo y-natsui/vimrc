@@ -4,8 +4,8 @@
 call plug#begin('~/.vim/plugged')
 
 " ファイルオープンを便利に
-"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug '/usr/local/opt/fzf'
+" Use brew fzf outside of Vim
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 " ファイルをtree表示してくれる
 Plug 'scrooloose/nerdtree'
