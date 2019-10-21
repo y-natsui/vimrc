@@ -36,7 +36,8 @@ Plug 'mechatroner/rainbow_csv'
 Plug 'lifepillar/vim-solarized8'
 " statusline
 Plug 'itchyny/lightline.vim'
-
+" Lint
+Plug 'w0rp/ale'
 " ctrl+pで補完するのが便利
 
 call plug#end()
