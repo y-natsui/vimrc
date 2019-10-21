@@ -115,14 +115,14 @@ autocmd FileType ruby setlocal expandtab shiftwidth=2 tabstop=2
 autocmd FileType eruby setlocal expandtab shiftwidth=2 tabstop=2
 
 " fzf
-nmap ; :Buffers<CR>
-nmap t :Files<CR>
-nmap r :Tags<CR>
+nnoremap ; :Buffers<CR>
+nnoremap t :Files<CR>
+nnoremap r :Tags<CR>
 
 " NERDTree
-map - :NERDTreeToggle<CR>
+noremap - :NERDTreeToggle<CR>
 " autocmd BufWinEnter * NERDTreeFind
-map ] :NERDTreeFind<CR>
+noremap ] :NERDTreeFind<CR>
 
 " lightline
 let g:lightline = {
