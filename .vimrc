@@ -3,20 +3,24 @@
 """"""""""""""""""""""""""""""
 call plug#begin('~/.vim/plugged')
 
-" ファイルオープンを便利に
-" Use brew fzf outside of Vim
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
+" fzf
+" Use brew fzf
+Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf.vim'
 " ファイルをtree表示してくれる
 Plug 'scrooloose/nerdtree'
+" Ripgrep
+" Use brew ripgrep
+
 " Gitを便利に使う
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 
-" Rails向けのコマンドを提供する
-" Plug 'tpope/vim-rails'
-" Ruby向けにendを自動挿入してくれる
+" Ruby / Rails
+Plug 'vim-ruby/vim-ruby'
+Plug 'tpope/vim-rails'
 Plug 'tpope/vim-endwise'
+Plug 'slim-template/vim-slim'
 
 " コメントON/OFFを手軽に実行
 Plug 'tomtom/tcomment_vim'
@@ -100,23 +104,25 @@ set whichwrap=b,s,h,l,<,>,[,]
 syntax on
 " カラースキーマの指定
 colorscheme solarized8_flat
-" 勝手に改行するのを防ぐ
-" set textwidth=0
-set formatoptions=q
-" textwidthでフォーマットさせたくない
-set formatoptions=q
 """"""""""""""""""""""""""""""
 
 " grep検索の実行後にQuickFix Listを表示する
 autocmd QuickFixCmdPost *grep* cwindow
 
+" file indentation
+" Ruby
+autocmd FileType ruby setlocal expandtab shiftwidth=2 tabstop=2
+autocmd FileType eruby setlocal expandtab shiftwidth=2 tabstop=2
+
 " fzf
-nmap ; :Buffers
-nmap t :Files
-nmap r :Tags
+nmap ; :Buffers<CR>
+nmap t :Files<CR>
+nmap r :Tags<CR>
 
 " NERDTree
-nnoremap <silent><C-e> :NERDTreeToggle<CR>
+map - :NERDTreeToggle<CR>
+" autocmd BufWinEnter * NERDTreeFind
+map ] :NERDTreeFind<CR>
 
 " lightline
 let g:lightline = {
