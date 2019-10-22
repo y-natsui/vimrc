@@ -11,6 +11,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'scrooloose/nerdtree'
 " Ripgrep
 " Use brew ripgrep
+Plug 'jremmen/vim-ripgrep'
 
 " Gitを便利に使う
 Plug 'tpope/vim-fugitive'
@@ -21,6 +22,8 @@ Plug 'vim-ruby/vim-ruby'
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-endwise'
 Plug 'slim-template/vim-slim'
+" language pack
+Plug 'sheerun/vim-polyglot'
 
 " コメントON/OFFを手軽に実行
 Plug 'tomtom/tcomment_vim'
@@ -38,7 +41,10 @@ Plug 'lifepillar/vim-solarized8'
 Plug 'itchyny/lightline.vim'
 " Lint
 Plug 'w0rp/ale'
-" ctrl+pで補完するのが便利
+" Helpers for UNIX
+Plug 'tpope/vim-eunuch'
+
+" ctrl+pで補完
 
 call plug#end()
 
@@ -96,7 +102,7 @@ set smartindent
 " タブ文字の表示幅
 set tabstop=2
 " Vimが挿入するインデントの幅
-set shiftwidth=2
+"set shiftwidth=2
 " 行頭の余白内で Tab を打ち込むと、'shiftwidth' の数だけインデントする
 set smarttab
 " カーソルを行頭、行末で止まらないようにする
@@ -112,8 +118,8 @@ autocmd QuickFixCmdPost *grep* cwindow
 
 " file indentation
 " Ruby
-autocmd FileType ruby setlocal expandtab shiftwidth=2 tabstop=2
-autocmd FileType eruby setlocal expandtab shiftwidth=2 tabstop=2
+"autocmd FileType ruby setlocal expandtab shiftwidth=2 tabstop=2
+"autocmd FileType eruby setlocal expandtab shiftwidth=2 tabstop=2
 
 " fzf
 nnoremap ; :Buffers<CR>
